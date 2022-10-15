@@ -5,10 +5,10 @@
 #include <state_machine.h>
 #include <Satima.h>
 
-LineArray lineArray(15,16,17,18,19);
+LineArray lineArray(3,18,19,20,21);
 state_machine sm;
 RobotState robotState;
-PID pid(1,0,0);
+PID pid(17,0,0);
 Satima driverLeft(5,6);
 Satima driverRight(5,6);
 
@@ -20,8 +20,8 @@ void setup() {
   driverLeft.setMaxSpeed(255);
   driverRight.setMaxSpeed(255);
   sm.transition();
-  driverLeft.setSpeed(MOTOR_BASE_SPEED, CLOCKWISE);
-  driverRight.setSpeed(MOTOR_BASE_SPEED, CLOCKWISE);
+  driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT, CLOCKWISE);
+  driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT, CLOCKWISE);
 }
 
 void loop() {
@@ -32,8 +32,8 @@ void loop() {
   case RobotState::line_following:
     line_position = lineArray.readValue();
     double pidOut = pid.Calculate(line_position, millis());
-    driverLeft.setSpeed(MOTOR_BASE_SPEED + pidOut, CLOCKWISE);
-    driverRight.setSpeed(MOTOR_BASE_SPEED - pidOut, CLOCKWISE);
+    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + pidOut, CLOCKWISE);
+    driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT - pidOut, CLOCKWISE);
     break;
   
   default:
