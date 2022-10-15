@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <PID.h>
-#include <Satima.h>
+#include <FCH.h>
 #include <state_machine.h>
 #include <obstacle_detector.h>
 #include <confs.h>
@@ -13,8 +13,8 @@
 #endif
 
 PID pid;
-Satima driverLeft(18,19);
-Satima driverRight(20,21);
+FCH driverLeft(5);
+FCH driverRight(6);
 state_machine sm;
 Obstacle od(22,23,24,25,26,27);
 RobotState robotState;
@@ -24,8 +24,8 @@ LineArray lineArray(15,16,17,18,19);
 void setup() {
   // put your setup code here, to run once:
   od.init();
-  driverLeft.setSpeed(104, CLOCKWISE);
-  driverRight.setSpeed(80, CLOCKWISE);
+  driverLeft.setSpeed(104);
+  driverRight.setSpeed(80);
   frontServo.attach(9);
   sm.transition();
 }
@@ -54,8 +54,8 @@ void loop() {
   }else{
     line_position = lineArray.readValue();
     double pidOut = pid.Calculate(line_position, millis());
-    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + pidOut, CLOCKWISE);
-    driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT - pidOut, CLOCKWISE);
+    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + pidOut);
+    driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT - pidOut);
 
   }
     break;
