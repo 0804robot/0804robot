@@ -3,25 +3,23 @@
 #include <PID.h>
 #include <line_array.h>
 #include <state_machine.h>
-#include <Satima.h>
+#include <FCH.h>
 
 LineArray lineArray(3,18,19,20,21);
 state_machine sm;
 RobotState robotState;
 PID pid(17,0,0);
-Satima driverLeft(5,6);
-Satima driverRight(5,6);
+FCH driverLeft(5);
+FCH driverRight(6);
 
 
 
 void setup() {
   // put your setup code here, to run once:
   lineArray.init();
-  driverLeft.setMaxSpeed(255);
-  driverRight.setMaxSpeed(255);
   sm.transition();
-  driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT, CLOCKWISE);
-  driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT, CLOCKWISE);
+  driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT);
+  driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT);
 }
 
 void loop() {
@@ -32,8 +30,8 @@ void loop() {
   case RobotState::line_following:
     line_position = lineArray.readValue();
     double pidOut = pid.Calculate(line_position, millis());
-    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + pidOut, CLOCKWISE);
-    driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT - pidOut, CLOCKWISE);
+    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + pidOut);
+    driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT - pidOut);
     break;
   
   default:
