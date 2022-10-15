@@ -3,9 +3,14 @@
 #include <Satima.h>
 #include <state_machine.h>
 #include <obstacle_detector.h>
-#include <ESP32Servo.h>
 #include <confs.h>
 #include <line_array.h>
+
+#if defined(ESP32) 
+  #include <ESP32Servo.h>
+#else 
+  #include <Servo.h>
+#endif
 
 PID pid;
 Satima driverLeft(18,19);
