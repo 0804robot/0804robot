@@ -19,7 +19,7 @@ state_machine sm;
 Obstacle od(8,9,8,9,8,9);
 RobotState robotState;
 Servo frontServo;
-LineArray lineArray(15,16,17,18,19);
+LineArray lineArray(3,18,19, 20, 21);
 
 void setup() {
   // put your setup code here, to run once:
