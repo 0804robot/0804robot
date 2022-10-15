@@ -29,12 +29,12 @@ void loop() {
   {
   case RobotState::line_following:
     line_position = lineArray.readValue();
-    double pidOut = pid.Calculate(line_position, millis());
-    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + pidOut);
-    driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT - pidOut);
+    double ab = pid.Calculate(line_position, millis());
+    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + ab);
+    driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT - ab);
     break;
   
-  default:
-    break;
+  // default:
+  //   break;
   }
 }
