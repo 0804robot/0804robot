@@ -5,7 +5,7 @@
 #include <state_machine.h>
 #include <FCH.h>
 
-LineArray lineArray(3,18,19,20,21);
+LineArray lineArray(34,35,32,19,23);
 state_machine sm;
 RobotState robotState;
 PID pid(17,0,0);
