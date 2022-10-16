@@ -12,27 +12,46 @@
   #include <Servo.h>
 #endif
 
-PID pid;
-FCH driverLeft(5);
-FCH driverRight(6);
+PID pid(5,0,0);
+FCH driverLeft(2);
+FCH driverRight(16);
 state_machine sm;
-Obstacle od(8,9,8,9,8,9);
+//Obstacle od(26,13,8,9,8,9);
 RobotState robotState;
 Servo frontServo;
-LineArray lineArray(15,16,17,18,19);
+LineArray lineArray(34,35,32,19,23);
 
 void setup() {
   // put your setup code here, to run once:
-  od.init();
+  //od.init();
   driverLeft.setSpeed(104);
   driverRight.setSpeed(80);
   frontServo.attach(9);
+  lineArray.init();
   sm.transition();
+  Serial.begin(9600);
+  delay(1000);
 }
 
 void loop() {
+  line_position = lineArray.readValue();
+  Serial.print("pos ");
+  Serial.println(line_position);
+  double pidOut = pid.Calculate(line_position, millis());
+  driverLeft.setSpeed(180 - MOTOR_BASE_SPEED_LEFT + pidOut);
+  driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT - pidOut);
+  Serial.print("left");
+  Serial.println(MOTOR_BASE_SPEED_LEFT + pidOut);
+  Serial.print("right");
+  Serial.println(180 - MOTOR_BASE_SPEED_LEFT - pidOut);
+  Serial.print("PID ");
+  Serial.println(pidOut);
+  //delay(60);
+  //driverLeft.brake();
+  //driverRight.brake();
+  delay(10);
   // put your main code here, to run repeatedly:
-  if (robotState == RobotState::line_following && od.getDistance_front() < 5) {
+  /*if (robotState == RobotState::line_following && od.getDistance_front() < 5) {
     sm.transition();
   }
   robotState = sm.getCurrentState();
@@ -61,6 +80,10 @@ void loop() {
     break;
   
   default:
+    line_position = lineArray.readValue();
+    double pidOut = pid.Calculate(line_position, millis());
+    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + pidOut);
+    driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT - pidOut);
     break;
-  }
+  }*/
 }
