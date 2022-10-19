@@ -12,7 +12,7 @@
   #include <Servo.h>
 #endif
 
-PID pid(1.4,0,1);
+PID pid(1.4,0,0);
 int solid_line_count = 0;
 
 state_machine sm;
