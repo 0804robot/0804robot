@@ -3,14 +3,12 @@
 #include <PID.h>
 #include <line_array.h>
 #include <state_machine.h>
-#include <FCH.h>
 
 LineArray lineArray(34,35,32,19,23);
 state_machine sm;
 RobotState robotState;
-PID pid(17,0,0);
-FCH driverLeft(5);
-FCH driverRight(6);
+PID pid(1.2,0,1.1);
+int previous_pos = 0;
 
 
 
@@ -29,12 +27,18 @@ void loop() {
   {
   case RobotState::line_following:
     line_position = lineArray.readValue();
-    double ab = pid.Calculate(line_position, millis());
-    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT + ab);
-    driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT - ab);
+    double pidOut = pid.Calculate(line_position, millis());
+    driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 90, 98));
+    driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 90, 98));
+     if (line_position != previous_pos) {
+        driverLeft.brake();
+        driverRight.brake();
+        delay(15);
+      }
+      previous_pos = line_position;
     break;
   
-  // default:
-  //   break;
+  default:
+     break;
   }
 }
