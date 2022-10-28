@@ -7,7 +7,7 @@
 LineArray lineArray(34,35,32,19,23);
 state_machine sm;
 RobotState robotState;
-PID pid(1.2,0,1.1);
+PID pid(1.3,0,1.1);
 int previous_pos = 0;
 
 
@@ -16,8 +16,8 @@ void setup() {
   // put your setup code here, to run once:
   lineArray.init();
   sm.transition();
-  driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT);
-  driverRight.setSpeed(180 - MOTOR_BASE_SPEED_RIGHT);
+  Serial.begin(9600);
+  delay(1000);
 }
 
 void loop() {
@@ -26,19 +26,56 @@ void loop() {
   switch (robotState)
   {
   case RobotState::line_following:
+  {
     line_position = lineArray.readValue();
+    if (line_position >= 10) {
+      sm.transition();
+      break;
+    }
     double pidOut = pid.Calculate(line_position, millis());
-    driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 90, 98));
-    driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 90, 98));
-     if (line_position != previous_pos) {
-        driverLeft.brake();
-        driverRight.brake();
-        delay(15);
-      }
-      previous_pos = line_position;
+    Serial.println(lineArray.readValue());
+    driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 90, 97));
+    driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 90, 97));
+    if (line_position != previous_pos) {
+      driverLeft.brake();
+      driverRight.brake();
+      delay(15);
+    }
+    previous_pos = line_position;
     break;
+  }
+  case RobotState::stop_and_go:
+  {
+    driverLeft.brake();
+    driverRight.brake();
+    delay(3000);
+    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT);
+    driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT);
+    sm.transition();
+    break;
+  }
+  case RobotState::obstacle_avoidance:
+  {
+    line_position = lineArray.readValue();
+    if (line_position >= 10) {
+      line_position = previous_pos;
+    }
+    double pidOut = pid.Calculate(line_position, millis());
+    Serial.println(lineArray.readValue());
+    driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 90, 97));
+    driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 90, 97));
+    if (line_position != previous_pos) {
+      driverLeft.brake();
+      driverRight.brake();
+      delay(15);
+    }
+    previous_pos = line_position;
+    break;
+  }
   
-  default:
-     break;
+  /*default:
+    driverLeft.brake();
+    driverRight.brake();
+    break;*/
   }
 }
