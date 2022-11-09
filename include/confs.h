@@ -7,8 +7,8 @@
 int line_position;
 
 void Drive60LeftRoutine(FCH leftDriver, FCH rightDriver){
-    leftDriver.setSpeed(104);
-    rightDriver.setSpeed(20);
+    leftDriver.setSpeed(20);
+    rightDriver.setSpeed(104);
     delay(20);
     leftDriver.setSpeed(104);
     rightDriver.setSpeed(80);

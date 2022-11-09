@@ -16,22 +16,31 @@ PID pid;
 FCH driverLeft(5);
 FCH driverRight(6);
 state_machine sm;
-Obstacle od(8,9,8,9,8,9);
+Obstacle od(26,13,22,17,33,25);
 RobotState robotState;
 Servo frontServo;
 LineArray lineArray(3,18,19, 20, 21);
 
 void setup() {
   // put your setup code here, to run once:
+  Serial.begin(9600);
+  pinMode(2, OUTPUT);
+  digitalWrite(2, HIGH);
   od.init();
   driverLeft.setSpeed(104);
   driverRight.setSpeed(80);
-  frontServo.attach(9);
+  frontServo.attach(21);
   sm.transition();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  Serial.println(od.getDistance_front());
+  // Serial.print(" ");
+  // Serial.print(od.getDistance_right());
+  // Serial.print(" ");
+  // Serial.println(od.getDistance_left());
+  
   if (robotState == RobotState::line_following && od.getDistance_front() < 5) {
     sm.transition();
   }
@@ -40,17 +49,27 @@ void loop() {
   {
   case RobotState::obstacle_avoidance:
   if (od.getDistance_front() < 5) {
+    digitalWrite(2, LOW);
     float distance_left, distance_right;
-    frontServo.write(60);
+    frontServo.write(180);
+    delay(200);
     distance_left = od.getDistance_front();
-    frontServo.write(120);
+    frontServo.write(100);
+    delay(200);
     distance_right = od.getDistance_front();
-    frontServo.write(90);
+    frontServo.write(140);
+    delay(200);
     if (distance_left > distance_right) {
       Drive60LeftRoutine(driverLeft, driverRight);
       Drive60RightRoutine(driverLeft, driverRight);
-
+      Drive60RightRoutine(driverLeft, driverRight);
     }
+    else if (distance_right > distance_left)
+    {
+      Drive60RightRoutine(driverLeft, driverRight);
+      Drive60LeftRoutine(driverLeft, driverRight);
+      Drive60LeftRoutine(driverLeft, driverRight);
+    } 
   }else{
     line_position = lineArray.readValue();
     double pidOut = pid.Calculate(line_position, millis());
