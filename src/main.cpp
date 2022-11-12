@@ -7,7 +7,7 @@
 LineArray lineArray(34,35,32,19,23);
 state_machine sm;
 RobotState robotState;
-PID pid(1.3,0,1.1);
+PID pid(2.1,0,1.1);
 int previous_pos = 0;
 
 
@@ -34,8 +34,8 @@ void loop() {
     }
     double pidOut = pid.Calculate(line_position, millis());
     Serial.println(lineArray.readValue());
-    driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 90, 97));
-    driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 90, 97));
+    driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 105));
+    driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 105));
     if (line_position != previous_pos) {
       driverLeft.brake();
       driverRight.brake();

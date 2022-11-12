@@ -2,8 +2,8 @@
 #define CONNFS_h
 
 #include <FCH.h>
-#define MOTOR_BASE_SPEED_LEFT 96
-#define MOTOR_BASE_SPEED_RIGHT 97.25
+#define MOTOR_BASE_SPEED_LEFT 100
+#define MOTOR_BASE_SPEED_RIGHT 100
 
 FCH driverLeft(2);
 FCH driverRight(16);
