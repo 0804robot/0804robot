@@ -5,6 +5,8 @@
 #define MOTOR_BASE_SPEED_LEFT 100
 #define MOTOR_BASE_SPEED_RIGHT 100
 
+#define IGNORED_CHECKPOINTS 1
+
 FCH driverLeft(2);
 FCH driverRight(16);
 

@@ -32,10 +32,16 @@ void loop() {
       sm.transition();
       break;
     }
-    double pidOut = pid.Calculate(line_position, millis());
-    Serial.println(lineArray.readValue());
-    driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 105));
-    driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 105));
+    if (lineArray.checkpoint_count >= IGNORED_CHECKPOINTS) {
+      driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT);
+      driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT);
+      delay(10);
+    }else{
+      double pidOut = pid.Calculate(line_position, millis());
+      Serial.println(lineArray.readValue());
+      driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 105));
+      driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 105));
+    }
     if (line_position != previous_pos) {
       driverLeft.brake();
       driverRight.brake();
@@ -49,8 +55,9 @@ void loop() {
     driverLeft.brake();
     driverRight.brake();
     delay(3000);
-    driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT);
-    driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT);
+    driverLeft.setSpeed(100);
+    driverRight.setSpeed(80);
+    delay(300);
     sm.transition();
     break;
   }
