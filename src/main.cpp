@@ -6,8 +6,6 @@
 #include <line_array.h>
 
 PID pid(2.1,0,1.1);
-FCH driverLeft(5);
-FCH driverRight(6);
 state_machine sm;
 Obstacle od(26,13,22,17,33,25);
 RobotState robotState;
