@@ -10,6 +10,8 @@
 FCH driverLeft(2);
 FCH driverRight(16);
 
+int line_position;
+
 void Drive60LeftRoutine(FCH leftDriver, FCH rightDriver){
     leftDriver.setSpeed(20);
     rightDriver.setSpeed(104);
@@ -28,6 +30,4 @@ void Drive60RightRoutine(FCH leftDriver, FCH rightDriver){
     delay(20);
     leftDriver.brake();
 }
-#endif
-int line_position;
 #endif
