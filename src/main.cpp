@@ -5,16 +5,18 @@
 #include <confs.h>
 #include <line_array.h>
 
-PID pid(2.1,0,1.1);
+PID pid(2.1, 0, 1.1);
 state_machine sm;
-Obstacle od(26,13,22,17,33,25);
+Obstacle od(26, 13, 22, 17, 33, 25);
 RobotState robotState;
 Servo frontServo;
-LineArray lineArray(34,35,32,19,23);
+LineArray lineArray(34, 35, 32, 19, 23);
 
 int previous_pos = 0;
+int obstacle_count = 0;
 
-void setup() {
+void setup()
+{
   // put your setup code here, to run once:
   lineArray.init();
   Serial.begin(9600);
@@ -26,7 +28,8 @@ void setup() {
   delay(1000);
 }
 
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
   robotState = sm.getCurrentState();
   switch (robotState)
@@ -34,21 +37,26 @@ void loop() {
   case RobotState::line_following:
   {
     line_position = lineArray.readValue();
-    if (line_position >= 10) {
+    if (line_position >= 10)
+    {
       sm.transition();
       break;
     }
-    if (lineArray.checkpoint_count >= IGNORED_CHECKPOINTS) {
+    if (lineArray.checkpoint_count >= IGNORED_CHECKPOINTS)
+    {
       driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT);
       driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT);
       delay(10);
-    }else{
+    }
+    else
+    {
       double pidOut = pid.Calculate(line_position, millis());
       Serial.println(lineArray.readValue());
       driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 105));
       driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 105));
     }
-    if (line_position != previous_pos) {
+    if (line_position != previous_pos)
+    {
       driverLeft.brake();
       driverRight.brake();
       delay(15);
@@ -63,57 +71,74 @@ void loop() {
     delay(3000);
     driverLeft.setSpeed(100);
     driverRight.setSpeed(80);
-    delay(300);
+    delay(1000);
     sm.transition();
     break;
   }
-  
+
   /*default:
     driverLeft.brake();
     driverRight.brake();
     break;*/
   case RobotState::obstacle_avoidance:
-  if (od.getDistance_front() < 5) {
-    digitalWrite(2, LOW);
-    float distance_left, distance_right;
-    frontServo.write(180);
-    delay(200);
-    distance_left = od.getDistance_front();
-    frontServo.write(100);
-    delay(200);
-    distance_right = od.getDistance_front();
-    frontServo.write(140);
-    delay(200);
-    if (distance_left > distance_right) {
-      Drive60LeftRoutine(driverLeft, driverRight);
-      Drive60RightRoutine(driverLeft, driverRight);
-      Drive60RightRoutine(driverLeft, driverRight);
+  {
+    if (obstacle_count >= 3 && lineArray.lost_line_count >= 1){
+      sm.transition();
+      break;
     }
-    else if (distance_right > distance_left)
+    if (od.getDistance_front() < 5)
     {
-      Drive60RightRoutine(driverLeft, driverRight);
-      Drive60LeftRoutine(driverLeft, driverRight);
-      Drive60LeftRoutine(driverLeft, driverRight);
-    } 
-  }else{
-    line_position = lineArray.readValue();
-    if (line_position >= 10) {
-      line_position = previous_pos;
+      obstacle_count++;
+      digitalWrite(2, LOW);
+      float distance_left, distance_right;
+      frontServo.write(180);
+      delay(200);
+      distance_left = od.getDistance_front();
+      frontServo.write(100);
+      delay(200);
+      distance_right = od.getDistance_front();
+      frontServo.write(140);
+      delay(200);
+      if (distance_left > distance_right)
+      {
+        Drive60LeftRoutine(driverLeft, driverRight);
+        Drive60RightRoutine(driverLeft, driverRight);
+        Drive60RightRoutine(driverLeft, driverRight);
+      }
+      else if (distance_right > distance_left)
+      {
+        Drive60RightRoutine(driverLeft, driverRight);
+        Drive60LeftRoutine(driverLeft, driverRight);
+        Drive60LeftRoutine(driverLeft, driverRight);
+      }
     }
-    double pidOut = pid.Calculate(line_position, millis());
-    Serial.println(lineArray.readValue());
-    driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 90, 97));
-    driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 90, 97));
-    if (line_position != previous_pos) {
-      driverLeft.brake();
-      driverRight.brake();
-      delay(15);
+    else
+    {
+      line_position = lineArray.readValue();
+      if (line_position >= 10)
+      {
+        line_position = previous_pos;
+      }
+      double pidOut = pid.Calculate(line_position, millis());
+      Serial.println(lineArray.readValue());
+      driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 105));
+      driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 105));
+      if (line_position != previous_pos)
+      {
+        driverLeft.brake();
+        driverRight.brake();
+        delay(15);
+      }
+      previous_pos = line_position;
     }
-    previous_pos = line_position;
-
-  }
     break;
-  
+  }
+  case RobotState::maze:
+  {
+
+    break;
+  }
+
   default:
     break;
   }
