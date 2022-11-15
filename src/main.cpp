@@ -12,7 +12,7 @@ Obstacle od(26, 13, 22, 17, 33, 25);
 RobotState robotState;
 Servo frontServo;
 LineArray lineArray(34, 35, 32, 19, 23);
-maze_solver mz(RIGHT_WALL, 11,11,11);
+maze_solver mz(RIGHT_WALL, 10,10,10);
 
 int previous_pos = 0;
 int obstacle_count = 0;
@@ -150,26 +150,26 @@ void loop()
     switch (direction)
     {
     case RIGHT:{
-      driverLeft.setSpeed(100);
-      driverRight.setSpeed(80);
-      delay(300);
+      driverLeft.setSpeed(90);
+      driverRight.setSpeed(100);
+      delay(600);
       break;
     }
     case LEFT:{
-      driverLeft.setSpeed(80);
-      driverRight.setSpeed(100);
-      delay(300);
+      driverLeft.setSpeed(100);
+      driverRight.setSpeed(90);
+      delay(600);
       break;
     }
     case FOWARD:{
-      driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT);
-      driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT);
+      driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT-4);
+      driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT-4);
       break;
     }
     case TURN_AROUND:{
       driverLeft.setSpeed(100);
       driverRight.setSpeed(80);
-      delay(290);
+      delay(580);
       break;
     }
     
