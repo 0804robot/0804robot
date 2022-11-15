@@ -6,13 +6,13 @@
 #include <line_array.h>
 #include <maze_solver.h>
 
-PID pid(1.2, 0, 1.1);
+PID pid(2.1, 0, 5);
 state_machine sm;
 Obstacle od(26, 13, 22, 17, 33, 25);
 RobotState robotState;
 Servo frontServo;
 LineArray lineArray(34, 35, 32, 19, 23);
-maze_solver mz(RIGHT_WALL, 2,2,2);
+maze_solver mz(RIGHT_WALL, 11,11,11);
 
 int previous_pos = 0;
 int obstacle_count = 0;
@@ -39,31 +39,22 @@ void loop()
   case RobotState::line_following:
   { 
     digitalWrite(LED_BUILTIN, LOW);
-    line_position = lineArray.readValue();
-    if (line_position >= 10)
+    line_position = lineArray.readValue(1);
+    Serial.println(od.getDistance_front());
+    if (line_position == 10 && od.getDistance_front() < 10.0)
     {
       sm.transition();
       break;
+    }else if (line_position == 10) {
+      line_position=0;
     }
-    if (lineArray.checkpoint_count == IGNORED_CHECKPOINTS)
-    {
-      driverLeft.setSpeed(MOTOR_BASE_SPEED_LEFT);
-      driverRight.setSpeed(MOTOR_BASE_SPEED_RIGHT);
-      delay(10);
-    }
-    else
-    {
       double pidOut = pid.Calculate(line_position, millis());
-      Serial.println(lineArray.readValue());
-      driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 105));
-      driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 105));
-    }
-    if (line_position != previous_pos)
-    {
-      driverLeft.brake();
-      driverRight.brake();
-      delay(15);
-    }
+      Serial.print(" ");
+      Serial.print(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 101));
+      Serial.print(" ");
+      Serial.println(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 101));
+      driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 101));
+      driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 101));
     previous_pos = line_position;
     break;
   }
@@ -75,7 +66,7 @@ void loop()
     delay(3000);
     driverLeft.setSpeed(100);
     driverRight.setSpeed(80);
-    delay(300);
+    delay(580);
     sm.transition();
     break;
   }
@@ -92,19 +83,27 @@ void loop()
       sm.transition();
       break;
     }
-    if (od.getDistance_front() < 5)
+    if (od.getDistance_front() < 5.0)
     {
+      driverLeft.brake();
+      driverRight.brake();
       obstacle_count++;
-      digitalWrite(2, LOW);
+      //digitalWrite(2, LOW);
       float distance_left, distance_right;
       frontServo.write(180);
       delay(200);
-      distance_left = od.getDistance_front();
+      distance_left = od.getDistance_left();
       frontServo.write(100);
       delay(200);
-      distance_right = od.getDistance_front();
+      distance_right = od.getDistance_right();
       frontServo.write(140);
       delay(200);
+      Serial.print("Front: ");
+      Serial.print(od.getDistance_front());
+      Serial.print(" Left: ");
+      Serial.print(distance_left);
+      Serial.print(" Right: ");
+      Serial.println(distance_right);
       if (distance_left > distance_right)
       {
         Drive60LeftRoutine();
@@ -120,13 +119,13 @@ void loop()
     }
     else
     {
-      line_position = lineArray.readValue();
-      if (line_position >= 10)
+      line_position = lineArray.readValue(2);
+      if (line_position == 10)
       {
         line_position = previous_pos;
       }
       double pidOut = pid.Calculate(line_position, millis());
-      Serial.println(lineArray.readValue());
+      //Serial.println(lineArray.readValue());
       driverLeft.setSpeed(constrain(MOTOR_BASE_SPEED_LEFT + pidOut, 85, 105));
       driverRight.setSpeed(constrain(MOTOR_BASE_SPEED_RIGHT - pidOut, 85, 105));
       if (line_position != previous_pos)
@@ -142,6 +141,11 @@ void loop()
   case RobotState::maze:
   {
     digitalWrite(LED_BUILTIN, HIGH);
+    if (od.getDistance_front() < 10) {
+      driverLeft.brake();
+      driverRight.brake();
+      delay(500);
+    }
     directions direction = mz.get_turn_directions(od.getDistance_front(), od.getDistance_right(), od.getDistance_left());
     switch (direction)
     {
@@ -163,9 +167,9 @@ void loop()
       break;
     }
     case TURN_AROUND:{
-      driverLeft.setSpeed(80);
-      driverRight.setSpeed(100);
-      delay(400);
+      driverLeft.setSpeed(100);
+      driverRight.setSpeed(80);
+      delay(290);
       break;
     }
     
